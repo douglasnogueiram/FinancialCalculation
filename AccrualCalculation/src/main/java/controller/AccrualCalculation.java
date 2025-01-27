@@ -130,8 +130,8 @@ public class AccrualCalculation {
 		
 		List<AccrualFlow> finalCalculatedAccrual = new ArrayList<AccrualFlow>();
 
-		finalCalculatedAccrual.add(calculatedAccrual.getFirst());
-		finalCalculatedAccrual.add(calculatedAccrual.getLast());
+		finalCalculatedAccrual.add(calculatedAccrual.stream().findFirst().orElse(null));
+		finalCalculatedAccrual.add(calculatedAccrual.stream().findFirst().orElse(null));
 		
 		String jsonOutput = JSONGenerator.generateAccrualFlowJSON(finalCalculatedAccrual);
 		return jsonOutput;

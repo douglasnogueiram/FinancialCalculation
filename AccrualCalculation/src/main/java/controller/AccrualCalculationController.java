@@ -3,14 +3,14 @@ package controller;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
 
 import model.AccrualCalculationMethod;
 import model.AccrualRequest;
 import model.FinancialFlow;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class AccrualCalculationController {
