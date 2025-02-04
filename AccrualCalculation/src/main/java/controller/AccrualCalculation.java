@@ -68,7 +68,7 @@ public class AccrualCalculation {
 		}
 
 		long diffDays = ChronoUnit.DAYS.between(startDate, endDate);
-		System.out.println(diffDays);
+		System.out.println("Iteraçoes: " + diffDays);
 
 
 
