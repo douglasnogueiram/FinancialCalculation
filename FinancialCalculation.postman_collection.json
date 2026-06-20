@@ -1,0 +1,176 @@
+{
+  "info": {
+    "name": "FinancialCalculation — BIAN",
+    "description": "REST API for loan financial calculations aligned with the BIAN Installment Loan service domain.\n\nStart the service before running requests:\n  docker run -p 8088:8088 financial-calculation\n\nBase URL: http://localhost:8088",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8088",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "IRR",
+      "item": [
+        {
+          "name": "Calculate IRR — Small schedule (6 installments)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/irr", "host": ["{{baseUrl}}"], "path": ["irr"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"initialRateEstimate\": 0.0001,\n  \"repaymentSchedule\": {\n    \"installmentReference\": [0, 1, 2, 3, 4, 5, 6],\n    \"paymentDueDate\": [\n      \"2024-09-01\",\n      \"2024-10-01\",\n      \"2024-11-01\",\n      \"2024-12-01\",\n      \"2025-01-01\",\n      \"2025-02-01\",\n      \"2025-03-01\"\n    ],\n    \"paymentAmount\": [\n      -5000.00000000000,\n      1447.95455883595,\n      1447.95455883595,\n      1447.95455883595,\n      1447.95455883595,\n      1447.95455883595,\n      1447.95455883595\n    ]\n  }\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n    \"effectiveInterestRate\": 0.00560298075229797650\n}"
+            }
+          ]
+        },
+        {
+          "name": "Calculate IRR — Large schedule (120 installments / 10 years)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/irr", "host": ["{{baseUrl}}"], "path": ["irr"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"initialRateEstimate\": 0.0001,\n  \"repaymentSchedule\": {\n    \"installmentReference\": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],\n    \"paymentDueDate\": [\n      \"2015-01-01\",\n      \"2015-02-01\",\n      \"2015-03-01\",\n      \"2015-04-01\",\n      \"2015-05-01\",\n      \"2015-06-01\",\n      \"2015-07-01\",\n      \"2015-08-01\",\n      \"2015-09-01\",\n      \"2015-10-01\",\n      \"2015-11-01\",\n      \"2015-12-01\",\n      \"2016-01-01\"\n    ],\n    \"paymentAmount\": [\n      -100000.00,\n      9000.00,\n      9000.00,\n      9000.00,\n      9000.00,\n      9000.00,\n      9000.00,\n      9000.00,\n      9000.00,\n      9000.00,\n      9000.00,\n      9000.00,\n      9000.00\n    ]\n  }\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "Calculate IRR — Bad guess (expects 422)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/irr", "host": ["{{baseUrl}}"], "path": ["irr"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"initialRateEstimate\": 99.9,\n  \"repaymentSchedule\": {\n    \"installmentReference\": [0, 1, 2],\n    \"paymentDueDate\": [\n      \"2024-01-01\",\n      \"2024-02-01\",\n      \"2024-03-01\"\n    ],\n    \"paymentAmount\": [\n      -1000.00,\n      400.00,\n      400.00\n    ]\n  }\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          },
+          "response": [
+            {
+              "name": "422 Unprocessable Entity",
+              "status": "Unprocessable Entity",
+              "code": 422,
+              "body": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Interest Accrual",
+      "item": [
+        {
+          "name": "Summary — END_OF_PERIOD (opening + closing records)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/interest-accrual/summary",
+              "host": ["{{baseUrl}}"],
+              "path": ["interest-accrual", "summary"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"dailyInterestRate\": 0.000660305482286683,\n  \"accrualDate\": \"2024-10-01\",\n  \"accrualBasis\": \"END_OF_PERIOD\",\n  \"repaymentSchedule\": {\n    \"installmentReference\": [0, 1, 2],\n    \"paymentDueDate\": [\n      \"2024-09-01\",\n      \"2024-10-01\",\n      \"2024-11-01\"\n    ],\n    \"paymentAmount\": [\n      50000.0000000,\n      2651.1922386,\n      2651.1922386\n    ]\n  }\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "[\n  {\n    \"accrualDaySequence\": 0,\n    \"accruedDate\": \"2024-09-01\",\n    \"accruedInterestAmount\": 0,\n    \"amortizationAmount\": 0,\n    \"outstandingBalance\": 50000.0\n  },\n  {\n    \"accrualDaySequence\": 61,\n    \"accruedDate\": \"2024-11-01\",\n    \"accruedInterestAmount\": 32.56348248341494,\n    \"amortizationAmount\": 2651.1922386,\n    \"outstandingBalance\": 46697.15516051148\n  }\n]"
+            }
+          ]
+        },
+        {
+          "name": "Summary — INTERMEDIATE_DATE (stops at accrualDate)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/interest-accrual/summary",
+              "host": ["{{baseUrl}}"],
+              "path": ["interest-accrual", "summary"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"dailyInterestRate\": 0.000660305482286683,\n  \"accrualDate\": \"2024-10-01\",\n  \"accrualBasis\": \"INTERMEDIATE_DATE\",\n  \"repaymentSchedule\": {\n    \"installmentReference\": [0, 1, 2],\n    \"paymentDueDate\": [\n      \"2024-09-01\",\n      \"2024-10-01\",\n      \"2024-11-01\"\n    ],\n    \"paymentAmount\": [\n      50000.0000000,\n      2651.1922386,\n      2651.1922386\n    ]\n  }\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "Detailed — INTERMEDIATE_DATE (daily series up to accrualDate)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/interest-accrual/detailed",
+              "host": ["{{baseUrl}}"],
+              "path": ["interest-accrual", "detailed"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"dailyInterestRate\": 0.000660305482286683,\n  \"accrualDate\": \"2024-10-01\",\n  \"accrualBasis\": \"INTERMEDIATE_DATE\",\n  \"repaymentSchedule\": {\n    \"installmentReference\": [0, 1, 2],\n    \"paymentDueDate\": [\n      \"2024-09-01\",\n      \"2024-10-01\",\n      \"2024-11-01\"\n    ],\n    \"paymentAmount\": [\n      50000.0000000,\n      2651.1922386,\n      2651.1922386\n    ]\n  }\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "Detailed — END_OF_PERIOD (full daily series)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/interest-accrual/detailed",
+              "host": ["{{baseUrl}}"],
+              "path": ["interest-accrual", "detailed"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"dailyInterestRate\": 0.000660305482286683,\n  \"accrualDate\": \"2024-10-01\",\n  \"accrualBasis\": \"END_OF_PERIOD\",\n  \"repaymentSchedule\": {\n    \"installmentReference\": [0, 1, 2],\n    \"paymentDueDate\": [\n      \"2024-09-01\",\n      \"2024-10-01\",\n      \"2024-11-01\"\n    ],\n    \"paymentAmount\": [\n      50000.0000000,\n      2651.1922386,\n      2651.1922386\n    ]\n  }\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "Summary — accrualDate out of range (expects 500)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/interest-accrual/summary",
+              "host": ["{{baseUrl}}"],
+              "path": ["interest-accrual", "summary"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"dailyInterestRate\": 0.000660305482286683,\n  \"accrualDate\": \"2030-01-01\",\n  \"accrualBasis\": \"END_OF_PERIOD\",\n  \"repaymentSchedule\": {\n    \"installmentReference\": [0, 1, 2],\n    \"paymentDueDate\": [\n      \"2024-09-01\",\n      \"2024-10-01\",\n      \"2024-11-01\"\n    ],\n    \"paymentAmount\": [\n      50000.0000000,\n      2651.1922386,\n      2651.1922386\n    ]\n  }\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

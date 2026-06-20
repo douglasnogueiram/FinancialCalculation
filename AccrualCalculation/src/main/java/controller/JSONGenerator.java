@@ -1,36 +1,31 @@
 package controller;
 
-
 import java.util.List;
 
-import model.AccrualFlow;
+import model.InterestAccrualRecord;
 
 public class JSONGenerator {
 
-    public static String generateAccrualFlowJSON(List<AccrualFlow> accrualFlows) {
-        StringBuilder jsonBuilder = new StringBuilder();
-        jsonBuilder.append("[");  // Iniciar o array JSON
+    public static String generateAccrualJSON(List<InterestAccrualRecord> records) {
+        StringBuilder json = new StringBuilder("[");
 
-        for (int i = 0; i < accrualFlows.size(); i++) {
-            AccrualFlow accrualFlow = accrualFlows.get(i);
+        for (int i = 0; i < records.size(); i++) {
+            InterestAccrualRecord record = records.get(i);
 
-            jsonBuilder.append("{");
-            jsonBuilder.append("\"idAccruedDay\":").append(accrualFlow.getIdAccruedDay()).append(",");
-            jsonBuilder.append("\"accruedDay\":\"").append(accrualFlow.getAccruedDay()).append("\",");
-            jsonBuilder.append("\"dailyInterestAmount\":").append(accrualFlow.getDailyInterestAmount()).append(",");
-            jsonBuilder.append("\"dailyAmmortizationAmount\":").append(accrualFlow.getDailyAmmortizationAmount()).append(",");
-            jsonBuilder.append("\"dailyBalance\":").append(accrualFlow.getDailyBalance());
+            json.append("{");
+            json.append("\"accrualDaySequence\":").append(record.getAccrualDaySequence()).append(",");
+            json.append("\"accruedDate\":\"").append(record.getAccruedDate()).append("\",");
+            json.append("\"accruedInterestAmount\":").append(record.getAccruedInterestAmount()).append(",");
+            json.append("\"amortizationAmount\":").append(record.getAmortizationAmount()).append(",");
+            json.append("\"outstandingBalance\":").append(record.getOutstandingBalance());
+            json.append("}");
 
-            jsonBuilder.append("}");
-
-            // Adiciona uma vírgula entre os objetos, mas não no último
-            if (i < accrualFlows.size() - 1) {
-                jsonBuilder.append(",");
+            if (i < records.size() - 1) {
+                json.append(",");
             }
         }
 
-        jsonBuilder.append("]");  // Fechar o array JSON
-        return jsonBuilder.toString();
+        json.append("]");
+        return json.toString();
     }
 }
-

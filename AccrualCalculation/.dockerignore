@@ -1,0 +1,6 @@
+.git
+.settings
+.vscode
+target/
+*.md
+benchmark_results.txt

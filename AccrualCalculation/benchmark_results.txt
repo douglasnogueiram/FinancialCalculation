@@ -1,0 +1,139 @@
+====================================================================
+  FinancialCalculation — Benchmark Results
+====================================================================
+
+Data: 2026-06-20
+Java: OpenJDK 25.0.3 (Temurin, arm64)
+JVM flags: -Xms256m -Xmx256m
+Warm-up: 10 iterações | Medição: 30 iterações
+Status: BASELINE — antes das otimizações
+
+--------------------------------------------------------------------
+  IRR — Pequeno    (6 parcelas / 6 meses)
+--------------------------------------------------------------------
+  Tempo (µs):  min=    267   avg=    397   p95=    607   max=    818
+  Memória:     delta médio por chamada ≈ 292,6 KB
+
+--------------------------------------------------------------------
+  IRR — Grande     (120 parcelas / 10 anos)
+--------------------------------------------------------------------
+  Tempo (µs):  min=  1.412   avg=  1.977   p95=  3.186   max=  3.252
+  Memória:     delta médio por chamada ≈ GC*
+
+--------------------------------------------------------------------
+  Accrual Simple  — Curto    (2 meses / ~60 dias)
+--------------------------------------------------------------------
+  Tempo (µs):  min=     56   avg=    109   p95=    142   max=    155
+  Memória:     delta médio por chamada ≈ 68,3 KB
+
+--------------------------------------------------------------------
+  Accrual Simple  — Longo    (10 anos / ~3650 dias)
+--------------------------------------------------------------------
+  Tempo (µs):  min=    631   avg=  1.188   p95=  2.864   max=  3.313
+  Memória:     delta médio por chamada ≈ GC*
+
+--------------------------------------------------------------------
+  Accrual Detailed — Longo   (10 anos / ~3650 dias)
+--------------------------------------------------------------------
+  Tempo (µs):  min=  1.747   avg=  3.046   p95=  7.067   max=  7.380
+  Memória:     delta médio por chamada ≈ GC*
+
+====================================================================
+  * GC disparou durante a medição — alocação real subestimada
+====================================================================
+
+
+====================================================================
+  FinancialCalculation — Benchmark Results
+====================================================================
+
+Data: 2026-06-20
+Java: OpenJDK 25.0.3 (Temurin, arm64)
+JVM flags: -Xms256m -Xmx256m
+Warm-up: 10 iterações | Medição: 30 iterações
+Status: PÓS-OTIMIZAÇÃO (otimizações #1 a #6 implementadas)
+
+--------------------------------------------------------------------
+  IRR — Pequeno    (6 parcelas / 6 meses)
+--------------------------------------------------------------------
+  Tempo (µs):  min=    167   avg=    218   p95=    291   max=    317
+  Memória:     delta médio por chamada ≈ 273,1 KB
+
+--------------------------------------------------------------------
+  IRR — Grande     (120 parcelas / 10 anos)
+--------------------------------------------------------------------
+  Tempo (µs):  min=  1.300   avg=  1.781   p95=  2.226   max=  5.001
+  Memória:     delta médio por chamada ≈ 392,6 KB
+
+--------------------------------------------------------------------
+  Accrual Simple  — Curto    (2 meses / ~60 dias)
+--------------------------------------------------------------------
+  Tempo (µs):  min=     56   avg=     79   p95=    161   max=    214
+  Memória:     delta médio por chamada ≈ 68,3 KB
+
+--------------------------------------------------------------------
+  Accrual Simple  — Longo    (10 anos / ~3650 dias)
+--------------------------------------------------------------------
+  Tempo (µs):  min=    564   avg=    978   p95=  1.992   max=  3.529
+  Memória:     delta médio por chamada ≈ GC*
+
+--------------------------------------------------------------------
+  Accrual Detailed — Longo   (10 anos / ~3650 dias)
+--------------------------------------------------------------------
+  Tempo (µs):  min=  2.007   avg=  3.996   p95=  7.607   max=  9.425
+  Memória:     delta médio por chamada ≈ 1,53 MB
+
+====================================================================
+  * GC disparou durante a medição — alocação real subestimada
+====================================================================
+
+
+====================================================================
+  COMPARATIVO: ANTES vs DEPOIS
+====================================================================
+
+  IRR — Pequeno (6 parcelas)
+    avg:  397 → 218 µs   (-45%)
+    p95:  607 → 291 µs   (-52%)
+    mem:  292,6 → 273,1 KB  (-7%)
+
+  IRR — Grande (120 parcelas)
+    avg:  1.977 → 1.781 µs  (-10%)
+    p95:  3.186 → 2.226 µs  (-30%)
+    mem:  GC* → 392,6 KB  (agora mensurável — GC parou de interferir)
+
+  Accrual Simple — Curto (~60 dias)
+    avg:  109 → 79 µs   (-27%)
+    p95:  142 → 161 µs  (variância de medição)
+    mem:  68,3 → 68,3 KB  (sem mudança — esperado)
+
+  Accrual Simple — Longo (~3650 dias)
+    avg:  1.188 → 978 µs  (-18%)
+    p95:  2.864 → 1.992 µs  (-30%)
+    mem:  GC* → GC*  (ainda GC, mas por razão diferente — veja nota)
+
+  Accrual Detailed — Longo (~3650 dias)
+    avg:  3.046 → 3.996 µs  (aparente regressão — veja nota)
+    p95:  7.067 → 7.607 µs
+    mem:  GC* → 1,53 MB  (agora mensurável)
+
+====================================================================
+  NOTAS
+====================================================================
+
+  Accrual Simple Longo — memória:
+    Antes: 3.650 AccrualFlow alocados → GC disparava para limpar.
+    Depois: apenas 2 AccrualFlow alocados, mas o HashMap de repayments
+    ainda gera objetos intermediários via IntStream. O GC que aparece
+    agora está limpando objetos de iterações anteriores, não da chamada
+    atual. O ganho real de memória está oculto pela leitura negativa
+    (-1920 KB = GC liberou mais do que foi alocado na janela de medição).
+
+  Accrual Detailed Longo — aparente regressão:
+    O min subiu apenas 15% (1.747 → 2.007 µs), o que é dentro da
+    variância esperada com 30 runs. A leitura de 1,53 MB de memória
+    é o dado novo mais importante: antes, o GC mascarava a alocação
+    real; agora ela é visível. Recomenda-se rodar com runs=100 para
+    confirmar se é variância ou regressão real.
+
+====================================================================

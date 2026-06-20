@@ -9,32 +9,25 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-
-import model.FinancialFlow;
-import model.IrrRequest;
-import model.IrrResponse;
-import model.irr;
+import model.IrrCalculationRequest;
+import model.IrrCalculationResponse;
+import model.IrrCalculator;
+import model.LoanRepaymentSchedule;
 
 @RestController
 public class IrrController {
-	
-	@PostMapping(value = "/irr", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<IrrResponse> calculateIrr(@RequestBody IrrRequest request) {
-		
-		BigDecimal guess = request.getGuess();
-		FinancialFlow finacialFlow = request.getFinancialFlow();
-		BigDecimal interestRate = irr.irrCalculation(guess, finacialFlow);
-		
-		String response = interestRate.toString();
-		
-        if (response == null || response.isEmpty()) {
-            // Retorna 204 No Content
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+
+    @PostMapping(value = "/irr", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<IrrCalculationResponse> calculateIrr(@RequestBody IrrCalculationRequest request) {
+        BigDecimal            initialRateEstimate = request.getInitialRateEstimate();
+        LoanRepaymentSchedule repaymentSchedule   = request.getRepaymentSchedule();
+
+        BigDecimal effectiveRate = IrrCalculator.calculate(initialRateEstimate, repaymentSchedule);
+
+        if (effectiveRate.compareTo(BigDecimal.valueOf(-1)) == 0) {
+            return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY);
         }
-		
-        return new ResponseEntity<>(new IrrResponse(interestRate), HttpStatus.OK);
-		
-	}
 
-
+        return new ResponseEntity<>(new IrrCalculationResponse(effectiveRate), HttpStatus.OK);
+    }
 }
